@@ -1,6 +1,20 @@
-node_modules
-coverage
-.idea
-database_test.sqlite
+# Node.js dependencies
 node_modules/
+
+# Coverage reports
 coverage/
+
+# JetBrains IDE (IntelliJ, WebStorm) configuration files
+.idea/
+
+# SQLite database (for tests or local dev)
+database_test.sqlite
+
+# Log files
+*.log
+
+# Environment variables file
+.env
+
+# macOS system files
+.DS_Store
