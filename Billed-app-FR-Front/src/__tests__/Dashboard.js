@@ -120,35 +120,40 @@ describe('Given I am connected as an Admin', () => {
   })
 
   describe('When I am on Dashboard page and I click 2 times on edit icon of a card', () => {
-    test('Then, big bill Icon should Appear',  () => {
-
+    test('Then, big bill Icon should Appear', async () => {
+  
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname })
       }
-
+  
       Object.defineProperty(window, 'localStorage', { value: localStorageMock })
       window.localStorage.setItem('user', JSON.stringify({
         type: 'Admin'
       }))
-
+  
       const dashboard = new Dashboard({
         document, onNavigate, store: null, bills:bills, localStorage: window.localStorage
       })
       document.body.innerHTML = DashboardUI({ data: { bills } })
-
+  
       const handleShowTickets1 = jest.fn((e) => dashboard.handleShowTickets(e, bills, 1))
       const icon1 = screen.getByTestId('arrow-icon1')
       icon1.addEventListener('click', handleShowTickets1)
       userEvent.click(icon1)
       expect(handleShowTickets1).toHaveBeenCalled()
-      expect(screen.getByTestId(`open-bill47qAXb6fIm2zOKkLzMro`)).toBeTruthy()
+  
+      // Utiliser waitFor pour attendre que l'élément apparaisse dans le DOM
+      await waitFor(() => expect(screen.getByTestId('open-bill47qAXb6fIm2zOKkLzMro')).toBeTruthy())
+  
       const iconEdit = screen.getByTestId('open-bill47qAXb6fIm2zOKkLzMro')
       userEvent.click(iconEdit)
       userEvent.click(iconEdit)
+      
       const bigBilledIcon = screen.queryByTestId("big-billed-icon")
       expect(bigBilledIcon).toBeTruthy()
     })
   })
+  
 
 
   describe('When I am on Dashboard and there are no bills', () => {
