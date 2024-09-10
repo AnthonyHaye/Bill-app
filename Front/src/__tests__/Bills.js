@@ -52,7 +52,46 @@ describe("Given I am connected as an employee", () => {
       expect(onNavigate).toHaveBeenCalledWith(ROUTES_PATH['NewBill'])
     })
   })
-
-
-
+  describe("When I click on the eye icon of a bill", () => {
+    test("Then a modal should open with the bill image", async () => {
+      // Simule le HTML de la page des factures avec les données mockées
+      document.body.innerHTML = BillsUI({ data: bills });
+  
+      // Simule jQuery modal dans Jest
+      $.fn.modal = jest.fn(); 
+  
+      // Initialise onNavigate comme fonction simulée
+      const onNavigate = jest.fn();
+      
+      // Crée l'instance de Bills avec les dépendances nécessaires
+      const billsContainer = new Bills({ document, onNavigate, store: null, localStorage: window.localStorage });
+      
+      // Récupére l'icône de la première facture
+      const iconEye = screen.getAllByTestId("icon-eye")[0];
+      
+      // Simule le clic sur l'icône "œil"
+      const handleClickIconEye = jest.fn(() => billsContainer.handleClickIconEye(iconEye));
+      iconEye.addEventListener('click', handleClickIconEye);
+      userEvent.click(iconEye);
+  
+      // Vérifie que la méthode a bien été appelée
+      expect(handleClickIconEye).toHaveBeenCalled();
+  
+      // Attend que la modale soit ajoutée au DOM et visible
+      const modal = await waitFor(() => document.getElementById('modaleFile'));
+      expect(modal).toBeTruthy();
+  
+      // Vérifie que l'image dans la modale s'affiche correctement
+      const img = modal.querySelector("img");
+      expect(img).toBeTruthy();
+      
+      // Vérifie que l'URL de l'image est valide et commence par 'http' ou 'https'
+      expect(img.src).toMatch(/^https?:\/\//); // Vérifier que l'URL commence par 'http' ou 'https'
+  
+      // Vérifie que jQuery modal est bien appelé avec 'show'
+      expect($.fn.modal).toHaveBeenCalledWith('show');
+    });
+  });
+  
 })
+
