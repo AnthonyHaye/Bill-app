@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "jest --coverage --noStackTrace --silent=false --verbose --testMatch=**/*.js"
+    "test": "jest --coverage --noStackTrace --silent"
     
   },
   "jest": {
