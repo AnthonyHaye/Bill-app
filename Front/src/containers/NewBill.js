@@ -9,7 +9,7 @@ export default class NewBill {
     const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
     formNewBill.addEventListener("submit", this.handleSubmit)
     const file = this.document.querySelector(`input[data-testid="file"]`)
-    file.addEventListener("change", this.handleChangeFile)
+    file.addEventListener("change", this.handleChangeFile.bind(this))
     this.fileUrl = null
     this.fileName = null
     this.billId = null
@@ -17,42 +17,66 @@ export default class NewBill {
   }
   handleChangeFile = e => {
     e.preventDefault();
+    console.log("la methode this.handleChangeFile est bien déclenché")
+    
     const fileInput = this.document.querySelector(`input[data-testid="file"]`);
-    const file = fileInput.files[0]
-    const filePath = e.target.value.split(/\\/g)
-    const fileName = filePath[filePath.length-1]
+    console.log("le file input", fileInput)
+    const file = fileInput.files[0];
+    
+    if (!file) {
+      console.error("Aucun fichier sélectionné");
+      return;
+    }
+      
+    
+    console.log("Fichier sélectionné : ", file);
+    console.log("Type de fichier : ", file.type);
+    console.log("Taille de fichier : ", file.size);
+    
+    const filePath = e.target.value.split(/\\/g);
+    const fileName = file.name;
+    console.log("filePath", filePath)
+    console.log("fileName", fileName)
+    console.log("Nom du fichier dans handle:", file.name);
 
     const allowedExtensions = ['jpg', 'jpeg', 'png'];
     const fileExtension = fileName.split('.').pop().toLowerCase();
+    console.log("fileextension", fileExtension)
+
+    console.log("fichier avant d'être accepté")
 
     if (!allowedExtensions.includes(fileExtension)) {
       alert('Seules les images de type jpg, jpeg ou png sont autorisées.');
       fileInput.value = ''; 
       return;
-  }
+    }
+    console.log("fichier accepté")
 
-    const formData = new FormData()
-    const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
-    formData.append('email', email)
-
-    this.store
-      .bills()
-      .create({
+    const formData = new FormData();
+    const email = JSON.parse(localStorage.getItem("user")).email;
+    formData.append('file', file);
+    formData.append('email', email);
+    
+    console.log("formData à soumettre:", formData.get('file'), formData.get('email'));
+    console.log("Appel de this.store.bills().create()");
+    this.store.bills().create({
         data: formData,
         headers: {
           noContentType: true
         }
       })
       .then(({fileUrl, key}) => {
-        console.log(fileUrl)
-        this.billId = key
-        this.fileUrl = fileUrl
-        this.fileName = fileName
-      }).catch(error => console.error(error))
-  }
+        console.log("Réponse de l'API:", fileUrl, key);
+        this.billId = key;
+        this.fileUrl = fileUrl;
+        this.fileName = fileName;
+        console.log("fileName mis à jour:", this.fileName);
+      }).catch(error => console.error(error));
+}
+
   handleSubmit = e => {
     e.preventDefault()
+    console.log("handleSubmit appelé");
     console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
@@ -68,6 +92,7 @@ export default class NewBill {
       fileName: this.fileName,
       status: 'pending'
     }
+    console.log("Facture créée : ", bill);
     this.updateBill(bill)
     this.onNavigate(ROUTES_PATH['Bills'])
   }
