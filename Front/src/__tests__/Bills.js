@@ -31,7 +31,8 @@ const setupTestEnvironment = () => {
 describe("Given I am connected as an employee", () => {
   beforeEach(() => {
     setupTestEnvironment(); // Mise en place du DOM avant chaque test
-  });
+    jest.spyOn(mockStore, "bills")
+  }); 
 
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
@@ -123,5 +124,21 @@ describe("Given I am connected as an employee", () => {
   
       expect(fetchedBills[0].status).toBe("invalid-status");
     });
-  });  
+  }); 
+  
+  test("Then, ErrorPage should be rendered when a 500 error occurs", async () => {
+    mockStore.bills.mockImplementationOnce(() => ({
+      list: () => Promise.reject(new Error("Erreur 500"))
+    }));
+    document.body.innerHTML = BillsUI({ error: "Erreur 500" });
+    expect(screen.getByText(/Erreur 500/)).toBeTruthy();
+  });
+
+  test("Then, ErrorPage should be rendered when a 500 error occurs", async () => {
+    mockStore.bills.mockImplementationOnce(() => ({
+      list: () => Promise.reject(new Error("Erreur 500"))
+    }));
+    document.body.innerHTML = BillsUI({ error: "Erreur 500" });
+    expect(screen.getByText(/Erreur 500/)).toBeTruthy();
+  });
 });
