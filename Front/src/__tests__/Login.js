@@ -228,3 +228,83 @@ describe("Given that I am a user on login page", () => {
     });
   });
 });
+
+describe("When the login API fails for an Employee", () => {
+  test("Then the createUser method should be called", async () => {
+    document.body.innerHTML = LoginUI();
+    const inputData = {
+      email: "johndoe@email.com",
+      password: "azerty",
+    };
+
+    // Simuler le changement dans les champs d'email et mot de passe
+    const inputEmailUser = screen.getByTestId("employee-email-input");
+    fireEvent.change(inputEmailUser, { target: { value: inputData.email } });
+    const inputPasswordUser = screen.getByTestId("employee-password-input");
+    fireEvent.change(inputPasswordUser, { target: { value: inputData.password } });
+    
+    const form = screen.getByTestId("form-employee");
+
+    Object.defineProperty(window, "localStorage", {
+      value: {
+        getItem: jest.fn(() => null),
+        setItem: jest.fn(() => null),
+      },
+      writable: true,
+    });
+
+    // Simuler la fonction onNavigate
+    const onNavigate = (pathname) => {
+      document.body.innerHTML = ROUTES({ pathname });
+    };
+
+    // Simulation du store
+    const store = {
+      login: jest.fn(() => Promise.reject("API error")), // Simuler l'échec de login
+      users: jest.fn(() => ({
+        create: jest.fn(() => Promise.resolve({})) // Simuler la création de l'utilisateur
+      }))
+    };
+
+    const login = new Login({
+      document,
+      localStorage: window.localStorage,
+      onNavigate,
+      PREVIOUS_LOCATION: "",
+      store
+    });
+
+    const handleSubmit = jest.fn(login.handleSubmitEmployee);
+    form.addEventListener("submit", handleSubmit);
+
+    try {
+      // Simuler la soumission du formulaire
+      fireEvent.submit(form);
+    
+      expect(handleSubmit).toHaveBeenCalled();
+      expect(store.login).toHaveBeenCalledWith(JSON.stringify({
+        email: inputData.email,
+        password: inputData.password
+      }));
+    
+      // Attendre que la promesse se résolve
+      await new Promise(process.nextTick);
+    
+      // Vérifier si users().create a bien été appelé après l'échec de login
+      expect(store.users).toHaveBeenCalled();
+      expect(store.users().create).toHaveBeenCalledWith({
+        data: JSON.stringify({
+          type: "Employee",
+          name: inputData.email.split('@')[0],
+          email: inputData.email,
+          password: inputData.password,
+        })
+      });
+    } catch (error) {
+      console.error("Erreur lors du test : ", error);
+    }
+  });
+});
+
+
+

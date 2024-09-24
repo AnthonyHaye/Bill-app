@@ -25,15 +25,19 @@ export default class Login {
     }
     this.localStorage.setItem("user", JSON.stringify(user))
     this.login(user)
-      .catch(
-        (err) => this.createUser(user)
-      )
+    .catch((err) => {
+      console.error("Login failed:", err); 
+      return this.createUser(user); 
+    })
       .then(() => {
         this.onNavigate(ROUTES_PATH['Bills'])
         this.PREVIOUS_LOCATION = ROUTES_PATH['Bills']
         PREVIOUS_LOCATION = this.PREVIOUS_LOCATION
         this.document.body.style.backgroundColor="#fff"
       })
+      .catch((err) => {
+        console.error("Error after createUser:", err); // Log any subsequent errors
+      });
 
   }
 
