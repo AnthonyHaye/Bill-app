@@ -18,7 +18,7 @@ jest.mock("../app/Store.js", () => ({
 }));
 
 // Fonction pour initialiser le DOM et la navigation
-const setupTestEnvironment = () => {
+  const setupTestEnvironment = () => {
   Object.defineProperty(window, 'localStorage', { value: localStorageMock });
   window.localStorage.setItem('user', JSON.stringify({ type: 'Employee' }));
   
@@ -26,7 +26,7 @@ const setupTestEnvironment = () => {
   root.setAttribute("id", "root");
   document.body.append(root);
   router();
-};
+  };
 
 describe("Given I am connected as an employee", () => {
   beforeEach(() => {
@@ -126,12 +126,12 @@ describe("Given I am connected as an employee", () => {
     });
   }); 
   
-  test("Then, ErrorPage should be rendered when a 500 error occurs", async () => {
+  test("Then, ErrorPage should be rendered when a 404 error occurs", async () => {
     mockStore.bills.mockImplementationOnce(() => ({
-      list: () => Promise.reject(new Error("Erreur 500"))
+      list: () => Promise.reject(new Error("Erreur 404"))
     }));
-    document.body.innerHTML = BillsUI({ error: "Erreur 500" });
-    expect(screen.getByText(/Erreur 500/)).toBeTruthy();
+    document.body.innerHTML = BillsUI({ error: "Erreur 404" });
+    expect(screen.getByText(/Erreur 404/)).toBeTruthy();
   });
 
   test("Then, ErrorPage should be rendered when a 500 error occurs", async () => {

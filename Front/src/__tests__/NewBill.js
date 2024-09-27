@@ -139,16 +139,10 @@ describe("Given I am connected as an employee", () => {
     const inputFile = screen.getByTestId("file");
   
     // Simule le changement de fichier avec un fichier valide (avec le nom 'test.png' uniquement)
-    const validFile = new File(['test'], 'test.png', { type: 'image/png' });
-  
-    // Logs pour vérifier l'état avant et après l'upload
-    console.log("Valid file:", validFile.name);
-    console.log("Avant l'upload, inputFile.files:", inputFile.files);
+    const validFile = new File(['test'], 'test.png', { type: 'image/png' });  
     
     // Simule l'upload
-    fireEvent.change(inputFile, { target: { files: [validFile] } });
-  
-    console.log("Après l'upload, inputFile.files:", inputFile.files);
+    fireEvent.change(inputFile, { target: { files: [validFile] } });  
     
     // Vérifiez que le fichier a bien le nom "test.png"
     expect(inputFile.files[0].name).toBe('test.png');
